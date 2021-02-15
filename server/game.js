@@ -1,4 +1,6 @@
-const { GRID_SIZE } = require('./constants');
+const { IMAGES, COLORS, GRID_SIZE } = require('./constants');
+let poisonFood = null
+let atePoison = false
 
 module.exports = {
   initGame,
@@ -43,7 +45,7 @@ function createGameState() {
         // {x: 18, y: 10},
       ],
     }],
-    food: {},
+    food: [{}],
     gridsize: GRID_SIZE,
   };
 }
@@ -70,18 +72,17 @@ function gameLoop(state) {
     return 1;
   }
 
-  if (state.food.x === playerOne.pos.x && state.food.y === playerOne.pos.y) {
-    playerOne.snake.push({ ...playerOne.pos });
-    playerOne.pos.x += playerOne.vel.x;
-    playerOne.pos.y += playerOne.vel.y;
-    randomFood(state);
+
+  if (state.food[0].x === playerOne.pos.x && state.food[0].y === playerOne.pos.y) {
+    if(checkIfPoison(state, 0)) {
+      return 2
+    }
   }
 
-  if (state.food.x === playerTwo.pos.x && state.food.y === playerTwo.pos.y) {
-    playerTwo.snake.push({ ...playerTwo.pos });
-    playerTwo.pos.x += playerTwo.vel.x;
-    playerTwo.pos.y += playerTwo.vel.y;
-    randomFood(state);
+  if (state.food[1].x === playerOne.pos.x && state.food[1].y === playerOne.pos.y) {
+    if(checkIfPoison(state, 1)) {
+      return 2
+    }
   }
 
   if (playerOne.vel.x || playerOne.vel.y) {
@@ -109,25 +110,68 @@ function gameLoop(state) {
   return false;
 }
 
-function randomFood(state) {
-  food = {
-    x: Math.floor(Math.random() * GRID_SIZE),
-    y: Math.floor(Math.random() * GRID_SIZE),
+function checkIfPoison(state, foodNumber) {
+  // console.log(poisonFood, foodNumber)
+  if (foodNumber === poisonFood) {
+    return true;
+  } else {
+    // console.log('eating')
+    const playerOne = state.players[0];
+    playerOne.snake.push({ ...playerOne.pos });
+    playerOne.pos.x += playerOne.vel.x;
+    playerOne.pos.y += playerOne.vel.y;
+    randomFood(state);
   }
+}
+
+function randomFood(state) {
+  const food = [
+    {
+      x: Math.floor(Math.random() * GRID_SIZE),
+      y: Math.floor(Math.random() * GRID_SIZE),
+      color: {}
+    },
+    {
+      x: Math.floor(Math.random() * GRID_SIZE),
+      y: Math.floor(Math.random() * GRID_SIZE),
+      color: {}
+    }
+  ]
 
   for (let cell of state.players[0].snake) {
-    if (cell.x === food.x && cell.y === food.y) {
+    if (cell.x === food[0].x && cell.y === food[0].y) {
       return randomFood(state);
     }
   }
 
-  for (let cell of state.players[1].snake) {
-    if (cell.x === food.x && cell.y === food.y) {
+  for (let cell of state.players[0].snake) {
+    if (cell.x === food[1].x && cell.y === food[1].y) {
       return randomFood(state);
     }
   }
 
   state.food = food;
+  randomColors(state)
+}
+
+function randomColors(state) {
+  let firstNumber = Math.floor(Math.random() * COLORS.length)
+  let secondNumber = Math.floor(Math.random() * COLORS.length)
+  if (firstNumber == secondNumber) {
+    randomColors(state)
+  } else {
+    state.food[0].color = COLORS[firstNumber]
+    state.food[1].color = COLORS[secondNumber]
+    randomPoison(state);
+  }
+}
+
+function randomPoison(state) {
+  poisonFood = Math.round(Math.random())
+  poisonColor = state.food[poisonFood].color.name
+  let array = IMAGES.filter(image => image.color == poisonColor)
+  let rand = Math.floor(Math.random() * array[0].imgURLs.length)
+  state.imgURL = array[0].imgURLs[rand]
 }
 
 function getUpdatedVelocity(keyCode) {
@@ -142,6 +186,18 @@ function getUpdatedVelocity(keyCode) {
       return { x: 1, y: 0 };
     }
     case 40: { // up
+      return { x: 0, y: 1 };
+    }
+    case 'LEFT': { // left
+      return { x: -1, y: 0 };
+    }
+    case 'DOWN': { // down
+      return { x: 0, y: -1 };
+    }
+    case 'RIGHT': { // right
+      return { x: 1, y: 0 };
+    }
+    case 'UP': { // up
       return { x: 0, y: 1 };
     }
   }

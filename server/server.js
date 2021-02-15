@@ -76,6 +76,7 @@ io.on('connection', client => {
 
 function startGameInterval(roomName) {
   const intervalId = setInterval(() => {
+
     const winner = gameLoop(state[roomName]);
 
     if (!winner) {
