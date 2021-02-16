@@ -11,6 +11,8 @@ socket.on('gameCode', handleGameCode);
 socket.on('unknownCode', handleUnknownCode);
 socket.on('tooManyPlayers', handleTooManyPlayers);
 
+window.onscroll = function () { window.scrollTo(0, 0); };
+
 const gameScreen = document.getElementById('gameScreen');
 const initialScreen = document.getElementById('initialScreen');
 const newGameBtn = document.getElementById('newGameButton');
@@ -20,7 +22,9 @@ const gameCodeInput = document.getElementById('gameCodeInput');
 const time = document.getElementById('time');
 // const gameCodeDisplay = document.getElementById('gameCodeDisplay');
 const img = document.getElementById('colorImage');
-const windowHeight = window.innerHeight - 80
+const toolbar = document.getElementById('toolbar').clientHeight;
+console.log(toolbar.height)
+const windowHeight = window.innerHeight - toolbar
 canvas.width = Math.floor(window.innerWidth/40) * 40
 canvas.height = Math.floor(windowHeight/40) * 40
 console.log(canvas.width)
