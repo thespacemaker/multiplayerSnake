@@ -22,35 +22,38 @@ function createGameState() {
     foodTimes: [],
     lastFood: null,
     sinceLastFood: null,
-    players: [{
-      pos: {
-        x: 3,
-        y: 10,
+    players: [
+      {
+        pos: {
+          x: 3,
+          y: 10,
+        },
+        vel: {
+          x: 1,
+          y: 0,
+        },
+        snake: [
+          {x: 1, y: 10},
+          {x: 2, y: 10},
+          {x: 3, y: 10},
+        ],
       },
-      vel: {
-        x: 1,
-        y: 0,
-      },
-      snake: [
-        {x: 1, y: 10},
-        {x: 2, y: 10},
-        {x: 3, y: 10},
-      ],
-    }, {
-      pos: {
-        x: 18,
-        y: 10,
-      },
-      vel: {
-        x: 0,
-        y: 0,
-      },
-      snake: [
-        // {x: 20, y: 10},
-        // {x: 19, y: 10},
-        // {x: 18, y: 10},
-      ],
-    }],
+      {
+        pos: {
+          x: 18,
+          y: 10,
+        },
+        vel: {
+          x: 0,
+          y: 0,
+        },
+        snake: [
+          // {x: 20, y: 10},
+          // {x: 19, y: 10},
+          // {x: 18, y: 10},
+        ],
+      }
+    ],
     food: [{}],
     gridsize: GRID_SIZE,
     gridX: 0,
@@ -189,19 +192,32 @@ function randomPoison(state) {
   state.imgURL = array[0].imgURLs[rand]
 }
 
-function getUpdatedVelocity(keyCode) {
+function getUpdatedVelocity(keyCode, currentVelocity) {
+  console.log(currentVelocity)
   switch (keyCode) {
     case 37: { // left
-      return { x: -1, y: 0 };
+      if (currentVelocity.x != 1) {
+        return { x: -1, y: 0 };
+      }
+      else return null
     }
     case 38: { // down
-      return { x: 0, y: -1 };
+      if (currentVelocity.y != 1) {
+        return { x: 0, y: -1 };
+      }
+      else return null
     }
     case 39: { // right
-      return { x: 1, y: 0 };
+      if (currentVelocity.x != -1) {
+        return { x: 1, y: 0 };
+      }
+      else return null
     }
     case 40: { // up
-      return { x: 0, y: 1 };
+      if (currentVelocity.y != -1) {
+        return { x: 0, y: 1 };
+      }
+      else return null
     }
     case 'LEFT': { // left
       return { x: -1, y: 0 };
