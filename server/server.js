@@ -17,8 +17,8 @@ io.on('connection', client => {
     const room = io.sockets.adapter.rooms[message.roomName]
     console.log(message.roomName)
     try {
-      state[message.roomName].gridX = Math.floor(message.screenSize.width/40)
-      state[message.roomName].gridY = Math.floor(message.screenSize.height/40)
+      state[message.roomName].gridX = message.screenSize.width/40
+      state[message.roomName].gridY = message.screenSize.height/40
       randomFood(state[message.roomName])
       state[message.roomName].startTime = new Date()
       state[message.roomName].lastFood = state[message.roomName].startTime
