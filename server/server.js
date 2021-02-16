@@ -21,7 +21,9 @@ io.on('connection', client => {
       state[message.roomName].gridY = message.screenSize.height/40
       randomFood(state[message.roomName])
       state[message.roomName].startTime = new Date()
-      state[message.roomName].lastFood = state[message.roomName].startTime
+      state[message.roomName].timer = new Date();
+      state[message.roomName].timer.setMinutes( state[message.roomName].timer.getMinutes() + 1 );
+      state[message.roomName].lastFood = new Date()
     }
     catch {
       console.log('caught some shit')
@@ -75,17 +77,23 @@ io.on('connection', client => {
       console.error(e);
       return;
     }
-    currentVelocity = state[roomName].players[0].vel
-    const vel = getUpdatedVelocity(keyCode, currentVelocity);
+    try {
+      currentVelocity = state[roomName].players[0].vel
+      const vel = getUpdatedVelocity(keyCode, currentVelocity);
 
-    if (vel) {
-      try {
-        state[roomName].players[client.number - 1].vel = vel;
-      }
-      catch {
-        console.log('caught some shit!')
+      if (vel) {
+        try {
+          state[roomName].players[client.number - 1].vel = vel;
+        }
+        catch {
+          console.log('caught some shit!')
+        }
       }
     }
+    catch {
+      console.log('caught some shit!')
+    }
+
   }
 });
 

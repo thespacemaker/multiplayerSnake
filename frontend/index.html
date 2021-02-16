@@ -48,9 +48,33 @@
           }
           </style> -->
           <!-- <h1>Your game code is: <span id="gameCodeDisplay"></span></h1> -->
+          <style>
+          .flex-container {
+            display: flex;
+            flex-wrap: nowrap;
+            background-color: white;
+          }
+          #time {
+            font-weight: bold;
+          }
+          </style>
+          <div class="flex-container">
+            <div width="20%"><h3><span id="time"></span>Seconds Left</h3></div>
+            <div width="20%">
+              <h2></h2>
+            </div>
+            <div style="margin-left: auto;" width="30%">
+              <h2>Avoid the Poison</h2>
+              <p>
+                the poison color is
+              </p>
+            </div>
+            <div width="30%"><img class="captcha" width="200px" height="80px" id="colorImage" /></div>
+          </div>
           <canvas id="canvas"></canvas>
-          <!-- <img width="200px" height="80px" id="colorImage" /> -->
+
         </div>
+
       </div>
 
     </div>

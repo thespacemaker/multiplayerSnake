@@ -17,11 +17,12 @@ const newGameBtn = document.getElementById('newGameButton');
 const canvas = document.getElementById('canvas');
 const joinGameBtn = document.getElementById('joinGameButton');
 const gameCodeInput = document.getElementById('gameCodeInput');
+const time = document.getElementById('time');
 // const gameCodeDisplay = document.getElementById('gameCodeDisplay');
 const img = document.getElementById('colorImage');
-
+const windowHeight = window.innerHeight - 80
 canvas.width = Math.floor(window.innerWidth/40) * 40
-canvas.height = Math.floor(window.innerHeight/40) * 40
+canvas.height = Math.floor(windowHeight/40) * 40
 console.log(canvas.width)
 console.log(canvas.height)
 
@@ -71,8 +72,9 @@ function keydown(e) {
 }
 
 function paintGame(state) {
-  // img.src=state.imgURL;
-  console.log(state.sinceLastFood)
+  img.src=state.imgURL;
+  // console.log(state.sinceLastFood)
+  time.innerText = state.currentTime;
   ctx.fillStyle = BG_COLOUR;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   if (state.food){

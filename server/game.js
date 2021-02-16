@@ -18,6 +18,7 @@ function initGame() {
 function createGameState() {
   return {
     startTime: null,
+    currentTime: null,
     endTime: null,
     foodTimes: [],
     lastFood: null,
@@ -65,7 +66,16 @@ function gameLoop(state) {
   if (!state) {
     return;
   }
-  state.sinceLastFood = new Date().getTime() - state.lastFood.getTime()
+  if (state.timer < new Date()) {
+    return 2;
+  }
+  if(state.lastFood) {
+    state.sinceLastFood = new Date().getTime() - state.lastFood.getTime()
+  }
+  if (state.timer) {
+    state.currentTime = state.timer.getTime() - new Date().getTime()
+    state.currentTime = Math.floor(state.currentTime/1000)
+  }
   const playerOne = state.players[0];
   const playerTwo = state.players[1];
   gridWidth = state.gridX
