@@ -14,30 +14,41 @@ socket.on('tooManyPlayers', handleTooManyPlayers);
 const gameScreen = document.getElementById('gameScreen');
 const initialScreen = document.getElementById('initialScreen');
 const newGameBtn = document.getElementById('newGameButton');
+const canvas = document.getElementById('canvas');
 const joinGameBtn = document.getElementById('joinGameButton');
 const gameCodeInput = document.getElementById('gameCodeInput');
-const gameCodeDisplay = document.getElementById('gameCodeDisplay');
+// const gameCodeDisplay = document.getElementById('gameCodeDisplay');
 const img = document.getElementById('colorImage');
 
-window.onscroll = function () { window.scrollTo(0, 0); };
+canvas.width = Math.floor(window.innerWidth/40) * 40
+canvas.height = Math.floor(window.innerHeight/40) * 40
+console.log(canvas.width)
+console.log(canvas.height)
+
+// window.onscroll = function () { window.scrollTo(0, 0); };
 newGameBtn.addEventListener('click', newGame);
 joinGameBtn.addEventListener('click', joinGame);
 
 
 function newGame() {
   socket.emit('newGame');
-  init();
+  // init();
 }
 
 function joinGame() {
   const urlParams = new URLSearchParams(window.location.search);
-  code = urlParams.get('gameCode')
-  console.log(code)
-  socket.emit('joinGame', code);
+  const code = urlParams.get('gameCode')
+  const message = {
+    roomName: code,
+    screenSize: {
+      width: canvas.width,
+      height: canvas.height
+    }
+  }
+  console.log(message)
+  socket.emit('joinGame', message);
   init();
 }
-
-let canvas, ctx;
 let playerNumber;
 let gameActive = false;
 
@@ -45,14 +56,11 @@ function init() {
   initialScreen.style.display = "none";
   gameScreen.style.display = "block";
 
-  canvas = document.getElementById('canvas');
+  // canvas = document.getElementById('canvas');
   ctx = canvas.getContext('2d');
 
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-
   ctx.fillStyle = BG_COLOUR;
-  ctx.fillRect(0, 0, canvas.width, canvas.height - 80);
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   document.addEventListener('keydown', keydown);
   gameActive = true;
@@ -63,32 +71,32 @@ function keydown(e) {
 }
 
 function paintGame(state) {
-  img.src=state.imgURL;
+  // img.src=state.imgURL;
+  console.log(state.sinceLastFood)
   ctx.fillStyle = BG_COLOUR;
-  ctx.fillRect(0, 0, canvas.width, canvas.height - 80);
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
   if (state.food){
     let food = state.food
-    const gridsize = state.gridsize;
-    const size = canvas.width / gridsize;
-    const sizex = canvas.width / gridsize;
-    const sizey = canvas.height / gridsize;
+    // const gridsize = state.gridsize;
+    const sizeX = canvas.width /state.gridX
+    const sizeY = canvas.height/state.gridY
 
     ctx.fillStyle = state.food[0].color.hex;
-    ctx.fillRect(food[0].x * sizex, food[0].y * sizey, sizex, sizey);
+    ctx.fillRect(food[0].x * sizeX, food[0].y * sizeY, 40, 40);
     ctx.fillStyle = state.food[1].color.hex;
-    ctx.fillRect(food[1].x * sizex, food[1].y * sizey, sizex, sizey);
+    ctx.fillRect(food[1].x * sizeX, food[1].y * sizeY, 40, 40);
 
-    paintPlayer(state.players[0], sizex, sizey, SNAKE_COLOUR);
-    paintPlayer(state.players[1], sizex, sizey, 'red');
+    paintPlayer(state.players[0], sizeX, sizeY, SNAKE_COLOUR);
+    paintPlayer(state.players[1], sizeX, sizeY, 'red');
   }
 }
 
-function paintPlayer(playerState, sizex, sizey, colour) {
+function paintPlayer(playerState, sizeX, sizeY, colour) {
   const snake = playerState.snake;
 
   ctx.fillStyle = colour;
   for (let cell of snake) {
-    ctx.fillRect(cell.x * sizex, cell.y * sizey, sizex, sizey);
+    ctx.fillRect(cell.x * sizeX, cell.y * sizeY, 40, 40);
   }
 }
 
@@ -120,7 +128,7 @@ function handleGameOver(data) {
 }
 
 function handleGameCode(gameCode) {
-  gameCodeDisplay.innerText = gameCode;
+  // gameCodeDisplay.innerText = gameCode;
   console.log(gameCode)
 }
 
