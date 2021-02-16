@@ -6,6 +6,7 @@ module.exports = {
   initGame,
   gameLoop,
   getUpdatedVelocity,
+  randomFood
 }
 
 function initGame() {
@@ -16,37 +17,48 @@ function initGame() {
 
 function createGameState() {
   return {
-    players: [{
-      pos: {
-        x: 3,
-        y: 10,
+    startTime: null,
+    currentTime: null,
+    endTime: null,
+    foodTimes: [],
+    lastFood: null,
+    sinceLastFood: null,
+    players: [
+      {
+        pos: {
+          x: 3,
+          y: 10,
+        },
+        vel: {
+          x: 1,
+          y: 0,
+        },
+        snake: [
+          {x: 1, y: 10},
+          {x: 2, y: 10},
+          {x: 3, y: 10},
+        ],
       },
-      vel: {
-        x: 1,
-        y: 0,
-      },
-      snake: [
-        {x: 1, y: 10},
-        {x: 2, y: 10},
-        {x: 3, y: 10},
-      ],
-    }, {
-      pos: {
-        x: 18,
-        y: 10,
-      },
-      vel: {
-        x: 0,
-        y: 0,
-      },
-      snake: [
-        // {x: 20, y: 10},
-        // {x: 19, y: 10},
-        // {x: 18, y: 10},
-      ],
-    }],
+      {
+        pos: {
+          x: 18,
+          y: 10,
+        },
+        vel: {
+          x: 0,
+          y: 0,
+        },
+        snake: [
+          // {x: 20, y: 10},
+          // {x: 19, y: 10},
+          // {x: 18, y: 10},
+        ],
+      }
+    ],
     food: [{}],
     gridsize: GRID_SIZE,
+    gridX: 0,
+    gridY: 0
   };
 }
 
@@ -54,9 +66,20 @@ function gameLoop(state) {
   if (!state) {
     return;
   }
-
+  if (state.timer < new Date()) {
+    return 2;
+  }
+  if(state.lastFood) {
+    state.sinceLastFood = new Date().getTime() - state.lastFood.getTime()
+  }
+  if (state.timer) {
+    state.currentTime = state.timer.getTime() - new Date().getTime()
+    state.currentTime = Math.floor(state.currentTime/1000)
+  }
   const playerOne = state.players[0];
   const playerTwo = state.players[1];
+  gridWidth = state.gridX
+  gridHeight = state.gridY
 
   playerOne.pos.x += playerOne.vel.x;
   playerOne.pos.y += playerOne.vel.y;
@@ -64,11 +87,11 @@ function gameLoop(state) {
   playerTwo.pos.x += playerTwo.vel.x;
   playerTwo.pos.y += playerTwo.vel.y;
 
-  if (playerOne.pos.x < 0 || playerOne.pos.x > GRID_SIZE || playerOne.pos.y < 0 || playerOne.pos.y > GRID_SIZE) {
+  if (playerOne.pos.x < 0 || playerOne.pos.x > gridWidth || playerOne.pos.y < 0 || playerOne.pos.y > gridHeight) {
     return 2;
   }
 
-  if (playerTwo.pos.x < 0 || playerTwo.pos.x > GRID_SIZE || playerTwo.pos.y < 0 || playerTwo.pos.y > GRID_SIZE) {
+  if (playerTwo.pos.x < 0 || playerTwo.pos.x > gridWidth || playerTwo.pos.y < 0 || playerTwo.pos.y > gridHeight) {
     return 1;
   }
 
@@ -120,20 +143,24 @@ function checkIfPoison(state, foodNumber) {
     playerOne.snake.push({ ...playerOne.pos });
     playerOne.pos.x += playerOne.vel.x;
     playerOne.pos.y += playerOne.vel.y;
+    state.lastFood = new Date()
+    state.foodTimes.push(state.lastFood.getTime() - state.startTime.getTime())
     randomFood(state);
   }
 }
 
 function randomFood(state) {
+  gridWidth = state.gridX
+  gridHeight = state.gridY
   const food = [
     {
-      x: Math.floor(Math.random() * GRID_SIZE),
-      y: Math.floor(Math.random() * GRID_SIZE),
+      x: Math.floor(Math.random() * gridWidth),
+      y: Math.floor(Math.random() * gridHeight),
       color: {}
     },
     {
-      x: Math.floor(Math.random() * GRID_SIZE),
-      y: Math.floor(Math.random() * GRID_SIZE),
+      x: Math.floor(Math.random() * gridWidth),
+      y: Math.floor(Math.random() * gridHeight),
       color: {}
     }
   ]
@@ -151,6 +178,7 @@ function randomFood(state) {
   }
 
   state.food = food;
+  state.sinceLastFood = 0;
   randomColors(state)
 }
 
@@ -174,19 +202,32 @@ function randomPoison(state) {
   state.imgURL = array[0].imgURLs[rand]
 }
 
-function getUpdatedVelocity(keyCode) {
+function getUpdatedVelocity(keyCode, currentVelocity) {
+  console.log(currentVelocity)
   switch (keyCode) {
     case 37: { // left
-      return { x: -1, y: 0 };
+      if (currentVelocity.x != 1) {
+        return { x: -1, y: 0 };
+      }
+      else return null
     }
     case 38: { // down
-      return { x: 0, y: -1 };
+      if (currentVelocity.y != 1) {
+        return { x: 0, y: -1 };
+      }
+      else return null
     }
     case 39: { // right
-      return { x: 1, y: 0 };
+      if (currentVelocity.x != -1) {
+        return { x: 1, y: 0 };
+      }
+      else return null
     }
     case 40: { // up
-      return { x: 0, y: 1 };
+      if (currentVelocity.y != -1) {
+        return { x: 0, y: 1 };
+      }
+      else return null
     }
     case 'LEFT': { // left
       return { x: -1, y: 0 };

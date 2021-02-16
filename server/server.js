@@ -1,5 +1,5 @@
 const io = require('socket.io')();
-const { initGame, gameLoop, getUpdatedVelocity } = require('./game');
+const { initGame, randomFood, gameLoop, getUpdatedVelocity } = require('./game');
 const { FRAME_RATE } = require('./constants');
 const { makeid } = require('./utils');
 
@@ -12,8 +12,22 @@ io.on('connection', client => {
   client.on('newGame', handleNewGame);
   client.on('joinGame', handleJoinGame);
 
-  function handleJoinGame(roomName) {
-    const room = io.sockets.adapter.rooms[roomName];
+  function handleJoinGame(message) {
+    state[message.roomName] = initGame();
+    const room = io.sockets.adapter.rooms[message.roomName]
+    console.log(message.roomName)
+    try {
+      state[message.roomName].gridX = message.screenSize.width/40
+      state[message.roomName].gridY = message.screenSize.height/40
+      randomFood(state[message.roomName])
+      state[message.roomName].startTime = new Date()
+      state[message.roomName].timer = new Date();
+      state[message.roomName].timer.setMinutes( state[message.roomName].timer.getMinutes() + 1 );
+      state[message.roomName].lastFood = new Date()
+    }
+    catch {
+      console.log('caught some shit')
+    }
 
     let allUsers;
     if (room) {
@@ -33,21 +47,19 @@ io.on('connection', client => {
       return;
     }
 
-    clientRooms[client.id] = roomName;
+    clientRooms[client.id] = message.roomName;
 
-    client.join(roomName);
+    client.join(message.roomName);
     client.number = 1;
     client.emit('init', 1);
 
-    startGameInterval(roomName);
+    startGameInterval(message.roomName);
   }
 
   function handleNewGame() {
     let roomName = makeid(5);
     clientRooms[client.id] = roomName;
     client.emit('gameCode', roomName);
-
-    state[roomName] = initGame();
 
     client.join(roomName);
     client.number = 2;
@@ -65,12 +77,23 @@ io.on('connection', client => {
       console.error(e);
       return;
     }
+    try {
+      currentVelocity = state[roomName].players[0].vel
+      const vel = getUpdatedVelocity(keyCode, currentVelocity);
 
-    const vel = getUpdatedVelocity(keyCode);
-
-    if (vel) {
-      state[roomName].players[client.number - 1].vel = vel;
+      if (vel) {
+        try {
+          state[roomName].players[client.number - 1].vel = vel;
+        }
+        catch {
+          console.log('caught some shit!')
+        }
+      }
     }
+    catch {
+      console.log('caught some shit!')
+    }
+
   }
 });
 
@@ -83,6 +106,9 @@ function startGameInterval(roomName) {
       emitGameState(roomName, state[roomName])
     } else {
       emitGameOver(roomName, winner);
+      state[roomName].endTime = new Date()
+      console.log('game completed in: ' + (state[roomName].endTime.getTime() - state[roomName].startTime.getTime()))
+      console.log(state[roomName])
       state[roomName] = null;
       clearInterval(intervalId);
     }
