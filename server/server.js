@@ -1,5 +1,5 @@
 const io = require('socket.io')();
-const { initGame, gameLoop, getUpdatedVelocity } = require('./game');
+const { initGame, randomFood, gameLoop, getUpdatedVelocity } = require('./game');
 const { FRAME_RATE } = require('./constants');
 const { makeid } = require('./utils');
 
@@ -12,9 +12,13 @@ io.on('connection', client => {
   client.on('newGame', handleNewGame);
   client.on('joinGame', handleJoinGame);
 
-  function handleJoinGame(roomName) {
-    const room = io.sockets.adapter.rooms[roomName];
-
+  function handleJoinGame(message) {
+    const room = io.sockets.adapter.rooms[message.roomName]
+    console.log(message.roomName)
+    state[message.roomName].gridX = Math.floor(message.screenSize.width/40)
+    state[message.roomName].gridY = Math.floor(message.screenSize.height/40)
+    randomFood(state[message.roomName])
+    state[message.roomName].startTime = new Date()
     let allUsers;
     if (room) {
       allUsers = room.sockets;
@@ -33,13 +37,13 @@ io.on('connection', client => {
       return;
     }
 
-    clientRooms[client.id] = roomName;
+    clientRooms[client.id] = message.roomName;
 
-    client.join(roomName);
+    client.join(message.roomName);
     client.number = 1;
     client.emit('init', 1);
 
-    startGameInterval(roomName);
+    startGameInterval(message.roomName);
   }
 
   function handleNewGame() {

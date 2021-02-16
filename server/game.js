@@ -6,6 +6,7 @@ module.exports = {
   initGame,
   gameLoop,
   getUpdatedVelocity,
+  randomFood
 }
 
 function initGame() {
@@ -16,6 +17,8 @@ function initGame() {
 
 function createGameState() {
   return {
+    startTime: null,
+    foodTimes: [],
     players: [{
       pos: {
         x: 3,
@@ -47,6 +50,8 @@ function createGameState() {
     }],
     food: [{}],
     gridsize: GRID_SIZE,
+    gridX: 0,
+    gridY: 0
   };
 }
 
@@ -57,6 +62,8 @@ function gameLoop(state) {
 
   const playerOne = state.players[0];
   const playerTwo = state.players[1];
+  gridWidth = state.gridX
+  gridHeight = state.gridY
 
   playerOne.pos.x += playerOne.vel.x;
   playerOne.pos.y += playerOne.vel.y;
@@ -64,11 +71,11 @@ function gameLoop(state) {
   playerTwo.pos.x += playerTwo.vel.x;
   playerTwo.pos.y += playerTwo.vel.y;
 
-  if (playerOne.pos.x < 0 || playerOne.pos.x > GRID_SIZE || playerOne.pos.y < 0 || playerOne.pos.y > GRID_SIZE) {
+  if (playerOne.pos.x < 0 || playerOne.pos.x > gridWidth || playerOne.pos.y < 0 || playerOne.pos.y > gridHeight) {
     return 2;
   }
 
-  if (playerTwo.pos.x < 0 || playerTwo.pos.x > GRID_SIZE || playerTwo.pos.y < 0 || playerTwo.pos.y > GRID_SIZE) {
+  if (playerTwo.pos.x < 0 || playerTwo.pos.x > gridWidth || playerTwo.pos.y < 0 || playerTwo.pos.y > gridHeight) {
     return 1;
   }
 
@@ -125,15 +132,17 @@ function checkIfPoison(state, foodNumber) {
 }
 
 function randomFood(state) {
+  gridWidth = state.gridX
+  gridHeight = state.gridY
   const food = [
     {
-      x: Math.floor(Math.random() * GRID_SIZE),
-      y: Math.floor(Math.random() * GRID_SIZE),
+      x: Math.floor(Math.random() * gridWidth),
+      y: Math.floor(Math.random() * gridHeight),
       color: {}
     },
     {
-      x: Math.floor(Math.random() * GRID_SIZE),
-      y: Math.floor(Math.random() * GRID_SIZE),
+      x: Math.floor(Math.random() * gridWidth),
+      y: Math.floor(Math.random() * gridHeight),
       color: {}
     }
   ]
