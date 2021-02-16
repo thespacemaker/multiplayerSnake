@@ -13,12 +13,20 @@ io.on('connection', client => {
   client.on('joinGame', handleJoinGame);
 
   function handleJoinGame(message) {
+    state[message.roomName] = initGame();
     const room = io.sockets.adapter.rooms[message.roomName]
     console.log(message.roomName)
-    state[message.roomName].gridX = Math.floor(message.screenSize.width/40)
-    state[message.roomName].gridY = Math.floor(message.screenSize.height/40)
-    randomFood(state[message.roomName])
-    state[message.roomName].startTime = new Date()
+    try {
+      state[message.roomName].gridX = Math.floor(message.screenSize.width/40)
+      state[message.roomName].gridY = Math.floor(message.screenSize.height/40)
+      randomFood(state[message.roomName])
+      state[message.roomName].startTime = new Date()
+      state[message.roomName].lastFood = state[message.roomName].startTime
+    }
+    catch {
+      console.log('caught some shit')
+    }
+
     let allUsers;
     if (room) {
       allUsers = room.sockets;
@@ -51,8 +59,6 @@ io.on('connection', client => {
     clientRooms[client.id] = roomName;
     client.emit('gameCode', roomName);
 
-    state[roomName] = initGame();
-
     client.join(roomName);
     client.number = 2;
     client.emit('init', 2);
@@ -73,7 +79,12 @@ io.on('connection', client => {
     const vel = getUpdatedVelocity(keyCode);
 
     if (vel) {
-      state[roomName].players[client.number - 1].vel = vel;
+      try {
+        state[roomName].players[client.number - 1].vel = vel;
+      }
+      catch {
+        console.log('caught some shit!')
+      }
     }
   }
 });
@@ -87,6 +98,9 @@ function startGameInterval(roomName) {
       emitGameState(roomName, state[roomName])
     } else {
       emitGameOver(roomName, winner);
+      state[roomName].endTime = new Date()
+      console.log('game completed in: ' + (state[roomName].endTime.getTime() - state[roomName].startTime.getTime()))
+      console.log(state[roomName])
       state[roomName] = null;
       clearInterval(intervalId);
     }

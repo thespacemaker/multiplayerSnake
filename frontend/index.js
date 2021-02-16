@@ -22,15 +22,17 @@ const img = document.getElementById('colorImage');
 
 canvas.width = Math.floor(window.innerWidth/40) * 40
 canvas.height = Math.floor(window.innerHeight/40) * 40
+console.log(canvas.width)
+console.log(canvas.height)
 
-window.onscroll = function () { window.scrollTo(0, 0); };
+// window.onscroll = function () { window.scrollTo(0, 0); };
 newGameBtn.addEventListener('click', newGame);
 joinGameBtn.addEventListener('click', joinGame);
 
 
 function newGame() {
   socket.emit('newGame');
-  init();
+  // init();
 }
 
 function joinGame() {
@@ -70,30 +72,31 @@ function keydown(e) {
 
 function paintGame(state) {
   // img.src=state.imgURL;
+  console.log(state.sinceLastFood)
   ctx.fillStyle = BG_COLOUR;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   if (state.food){
     let food = state.food
     // const gridsize = state.gridsize;
-    const gridX = state.gridX
-    const gridY = state.gridY
+    const sizeX = canvas.width /state.gridX
+    const sizeY = canvas.height/state.gridY
 
     ctx.fillStyle = state.food[0].color.hex;
-    ctx.fillRect(food[0].x * gridX, food[0].y * gridY, 40, 40);
+    ctx.fillRect(food[0].x * sizeX, food[0].y * sizeY, 40, 40);
     ctx.fillStyle = state.food[1].color.hex;
-    ctx.fillRect(food[1].x * gridX, food[1].y * gridY, 40, 40);
+    ctx.fillRect(food[1].x * sizeX, food[1].y * sizeY, 40, 40);
 
-    paintPlayer(state.players[0], gridX, gridY, SNAKE_COLOUR);
-    paintPlayer(state.players[1], gridX, gridY, 'red');
+    paintPlayer(state.players[0], sizeX, sizeY, SNAKE_COLOUR);
+    paintPlayer(state.players[1], sizeX, sizeY, 'red');
   }
 }
 
-function paintPlayer(playerState, gridX, gridY, colour) {
+function paintPlayer(playerState, sizeX, sizeY, colour) {
   const snake = playerState.snake;
 
   ctx.fillStyle = colour;
   for (let cell of snake) {
-    ctx.fillRect(cell.x * gridX, cell.y * gridY, 40, 40);
+    ctx.fillRect(cell.x * sizeX, cell.y * sizeY, 40, 40);
   }
 }
 

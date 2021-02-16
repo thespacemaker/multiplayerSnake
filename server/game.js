@@ -18,7 +18,10 @@ function initGame() {
 function createGameState() {
   return {
     startTime: null,
+    endTime: null,
     foodTimes: [],
+    lastFood: null,
+    sinceLastFood: null,
     players: [{
       pos: {
         x: 3,
@@ -59,7 +62,7 @@ function gameLoop(state) {
   if (!state) {
     return;
   }
-
+  state.sinceLastFood = new Date().getTime() - state.lastFood.getTime()
   const playerOne = state.players[0];
   const playerTwo = state.players[1];
   gridWidth = state.gridX
@@ -127,6 +130,8 @@ function checkIfPoison(state, foodNumber) {
     playerOne.snake.push({ ...playerOne.pos });
     playerOne.pos.x += playerOne.vel.x;
     playerOne.pos.y += playerOne.vel.y;
+    state.lastFood = new Date()
+    state.foodTimes.push(state.lastFood.getTime() - state.startTime.getTime())
     randomFood(state);
   }
 }
@@ -160,6 +165,7 @@ function randomFood(state) {
   }
 
   state.food = food;
+  state.sinceLastFood = 0;
   randomColors(state)
 }
 
